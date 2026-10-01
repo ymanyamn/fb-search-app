@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FB Smart Finder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 30px; width: 100%; max-width: 480px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
+    .header { text-align: center; margin-bottom: 25px; }
+    .header h1 { font-size: 1.5rem; color: var(--accent); margin-bottom: 8px; }
+    .header p { color: var(--text-muted); font-size: 0.9rem; }
+    .form-group { margin-bottom: 18px; }
+    label { display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-muted); }
+    input { width: 100%; padding: 12px 16px; background: #0f172a; border: 1px solid var(--border); border-radius: 10px; color: #fff; font-size: 0.95rem; outline: none; }
+    input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
+    .btn { width: 100%; padding: 14px; background: var(--accent); border: none; border-radius: 10px; color: white; font-weight: 700; cursor: pointer; }
+    .btn:hover { background: var(--accent-hover); }
+    .results { margin-top: 25px; display: none; border-top: 1px solid var(--border); padding-top: 20px; }
+    .result-item { display: flex; justify-content: space-between; align-items: center; background: #0f172a; padding: 12px 16px; border-radius: 10px; margin-bottom: 10px; }
+    .result-item span { font-size: 0.9rem; }
+    .link-btn { color: var(--accent); text-decoration: none; font-weight: bold; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <h1>Facebook Finder</h1>
+      <p>بحث ذكي وموجه باستخدام المعايير الجغرافية</p>
+    </div>
+    <form id="searchForm">
+      <div class="form-group">
+        <label>الاسم الكامل</label>
+        <input type="text" id="name" placeholder="مثال: أحمد محمد" required>
+      </div>
+      <div class="form-group">
+        <label>المدينة / المحافظة</label>
+        <input type="text" id="city" placeholder="مثال: الرياض">
+      </div>
+      <div class="form-group">
+        <label>العنوان التفصيلي (المنطقة / الحي)</label>
+        <input type="text" id="address" placeholder="مثال: حي العليا">
+      </div>
+      <button type="submit" class="btn">توليد مسارات البحث</button>
+    </form>
+    <div class="results" id="resultsSection">
+      <div class="result-item">
+        <span>بحث الأشخاص (Facebook)</span>
+        <a href="#" id="fbLink" target="_blank" class="link-btn">فتح النتائج ←</a>
+      </div>
+      <div class="result-item">
+        <span>طريقة Google المتقدمة</span>
+        <a href="#" id="googleLink" target="_blank" class="link-btn">فتح النتائج ←</a>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.getElementById('searchForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value;
+      const city = document.getElementById('city').value;
+      const address = document.getElementById('address').value;
+
+      const res = await fetch('/api/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, city, address })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('fbLink').href = data.links.facebook;
+        document.getElementById('googleLink').href = data.links.google;
+        document.getElementById('resultsSection').style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>
